@@ -3,7 +3,12 @@ name: DevSecOps AWS Pipeline
 on:
   push:
     branches:
-      - '**'
+      - main
+
+  pull_request:
+    branches:
+      - main
+  
 
 env:
   TF_WORKING_DIR: src
