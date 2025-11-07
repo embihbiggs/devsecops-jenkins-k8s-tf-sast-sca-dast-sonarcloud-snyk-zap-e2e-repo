@@ -211,21 +211,21 @@ jobs:
           name: zap-report-${{ github.run_id }}
           path: zap_report.html
 
-  # # Post-processing: send findings to Security Hub / Slack 
-  # notify:
-  #   runs-on: ubuntu-latest
-  #   needs: [terraform_apply, dast_zap]
-  #   steps:
-  #     - name: Send notification to Slack (example)
-  #       if: always()
-  #       uses: slackapi/slack-github-action@v1.23.0
-  #       with:
-  #         payload: |
-  #           {
-  #             "text": "Pipeline ${{ github.workflow }} #${{ github.run_id }} finished. Branch: ${{ github.ref }}",
-  #             "attachments": [
-  #               {"text": "SAST/SCA checks ran. Check Security Hub / ZAP reports for details."}
-  #             ]
-  #           }
-  #       env:
-  #         SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+  # Post-processing: send findings to Security Hub / Slack 
+  notify:
+    runs-on: ubuntu-latest
+    needs: [terraform_apply, dast_zap]
+    steps:
+      - name: Send notification to Slack (example)
+        if: always()
+        uses: slackapi/slack-github-action@v1.23.0
+        with:
+          payload: |
+            {
+              "text": "Pipeline ${{ github.workflow }} #${{ github.run_id }} finished. Branch: ${{ github.ref }}",
+              "attachments": [
+                {"text": "SAST/SCA checks ran. Check Security Hub / ZAP reports for details."}
+              ]
+            }
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
