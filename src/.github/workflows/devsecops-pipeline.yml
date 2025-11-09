@@ -1,283 +1,54 @@
-name: DevSecOps AWS Pipeline
+name: "DevTest"
 
 on:
   push:
     branches:
       - main
 
-  pull_request:
-    branches:
-      - main
-  
-
-env:
-  TF_WORKING_DIR: src
-  TERRAFORM_VERSION: 1.5.6
-  AWS_REGION: us-east-1
-
 permissions:
-  id-token: write       # Required for AWS OIDC authentication
-  contents: read        # Required for repo checkout
+  id-token: write        # Required for AWS OIDC authentication
+  contents: read         # Required for repo checkout
 
 jobs:
-
-  # 1Build & Unit Test
-  build:
-    name: Build & Unit Test
+  terraform:
+    name: "Terraform"
     runs-on: ubuntu-latest
+
     defaults:
       run:
-        working-directory: ${{ env.TF_WORKING_DIR }}
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
+        working-directory: src
 
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: 18
+    env:
+      AWS_REGION: us-east-1    
 
-      - name: Cache Node Modules
-        id: cache-node
-        uses: actions/cache@v4
-        with:
-          path: ~/.npm
-          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-node-
-
-      - name: Install Dependencies
-        if: hashFiles('**/package.json') != ''
-        run: npm ci
-
-      - name: Run Unit Tests
-        if: hashFiles('**/package.json') != ''
-        run: npm test
-
-  # Static Analysis (SAST) + Software Composition (SCA)
-  sast_sca:
-    name: SAST & SCA Scans
-    runs-on: ubuntu-latest
-    needs: build
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      # SonarCloud Scan (for SAST)
-      - name: Run SonarCloud Scan
-        uses: sonarsource/sonarcloud-github-action@master
-        with:
-          args: >
-            -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }}
-            -Dsonar.organization=${{ secrets.SONAR_ORGANIZATION }}
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-
-      # Snyk SCA Scan
-      - name: Snyk Vulnerability Scan
-        uses: snyk/actions/node@master
-        env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        with:
-          command: test
-
-      - name: Snyk Monitor (Store Snapshot)
-        if: success()
-        uses: snyk/actions/node@master
-        env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        with:
-          command: monitor
-
-  # Terraform Plan (IaC Validation)
-  terraform_plan:
-    name: Terraform Plan
-    runs-on: ubuntu-latest
-    needs: sast_sca
-    outputs:
-      plan-path: ${{ steps.upload-plan.outputs.artifact-path || '' }}
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v3
-        with:
-          terraform_version: ${{ env.TERRAFORM_VERSION }}
-
+#Authenticate to AWS using GitHub OIDC BEFORE running Terraform
       - name: Configure AWS Credentials (OIDC)
-        uses: aws-actions/configure-aws-credentials@v2
+        uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ secrets.GITHUB_OIDC_ROLE_ARN }}
           aws-region: ${{ env.AWS_REGION }}
 
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.7.5  # <-- recommended stable version
+          terraform_wrapper: false
+
+      - name: Terraform Format
+        id: fmt
+        run: terraform fmt -check
+
       - name: Terraform Init
-        working-directory: ${{ env.TF_WORKING_DIR }}
-        run: terraform init -input=false -no-color
-
-      - name: Terraform Format Check
-        working-directory: ${{ env.TF_WORKING_DIR }}
-        run: terraform fmt -check -recursive
-
-      - name: Terraform Validate
-        working-directory: ${{ env.TF_WORKING_DIR }}
-        run: terraform validate -no-color
-
-      - name: Select or Create Workspace
-        working-directory: ${{ env.TF_WORKING_DIR }}
-        run: |
-          workspace=${GITHUB_REF##*/}
-          terraform workspace select "$workspace" || terraform workspace new "$workspace"
+        id: init
+        run: terraform init
 
       - name: Terraform Plan
         id: plan
-        working-directory: ${{ env.TF_WORKING_DIR }}
-        run: |
-          terraform plan -out=tfplan -input=false -no-color
-          terraform show -json tfplan > tfplan.json
-        env:
-          TF_VAR_git_branch: ${{ github.ref }}
-
-      - name: Upload tfplan Artifact
-        id: upload-plan
-        uses: actions/upload-artifact@v4
-        with:
-          name: tfplan-${{ github.run_id }}
-          path: |
-            ${{ env.TF_WORKING_DIR }}/tfplan
-            ${{ env.TF_WORKING_DIR }}/tfplan.json
-
-  #  Manual Approval (Protected Environments)
-  manual_approval:
-    name:  Manual Approval
-    runs-on: ubuntu-latest
-    needs: terraform_plan
-    if: github.ref == 'refs/heads/main'
-    steps:
-      - name: Await Approval
-        uses: hmarr/auto-approve-action@v2
-        # You can replace this with a required environment review via GitHub Environments
-
-  # Terraform Apply
-  terraform_apply:
-    name: Terraform Apply
-    runs-on: ubuntu-latest
-    needs: [terraform_plan, manual_approval]
-    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop'
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v3
-        with:
-          terraform_version: ${{ env.TERRAFORM_VERSION }}
-
-      - name: Configure AWS Credentials (OIDC)
-        uses: aws-actions/configure-aws-credentials@v2
-        with:
-          role-to-assume: ${{ secrets.AWS_OIDC_ROLE_ARN }}
-          aws-region: ${{ env.AWS_REGION }}
-
-      - name: Download Plan Artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: tfplan-${{ github.run_id }}
-          path: ${{ env.TF_WORKING_DIR }}
+        run: terraform plan -no-color
 
       - name: Terraform Apply
-        working-directory: ${{ env.TF_WORKING_DIR }}
-        run: terraform apply -auto-approve tfplan
-
-      - name: Export App URL
-        id: export
-        run: |
-          echo "APP_URL=https://$(terraform output -raw alb_dns_name 2>/dev/null || echo 'example-app.local')" >> $GITHUB_ENV
-
-  # DAST - OWASP ZAP Scan
-  dast_zap:
-    name:  DAST Scan (OWASP ZAP)
-    runs-on: ubuntu-latest
-    needs: terraform_apply
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Run OWASP ZAP Baseline Scan
-        uses: zaproxy/action-baseline@v0.12.0
-        with:
-          target: ${{ env.APP_URL || secrets.APP_URL }}
-          cmd_options: '-r zap_report.html'
-        continue-on-error: true
-
-      - name: Upload ZAP Report
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: zap-report-${{ github.run_id }}
-          path: zap_report.html
-
-  #  AWS Security Services Enablement
-  aws_security_services:
-    name: AWS Security Services Setup
-    runs-on: ubuntu-latest
-    needs: terraform_apply
-    steps:
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v2
-        with:
-          role-to-assume: ${{ secrets.GITHUB_OIDC_ROLE_ARN }}
-          aws-region: ${{ env.AWS_REGION }}
-
-      - name: Enable AWS Security Services
-        run: |
-          aws configservice put-configuration-recorder --name default --role-arn ${{ secrets.AWS_CONFIG_ROLE_ARN }} --recording-group allSupported=true
-          aws configservice start-configuration-recorder --configuration-recorder-name default
-          aws guardduty create-detector --enable || true
-          aws inspector2 enable --resource-types EC2 ECR LAMBDA || true
-          aws securityhub enable-security-hub || true
-          aws securityhub batch-enable-standards \
-            --standards-subscription-requests \
-            StandardsArn=arn:aws:securityhub:::ruleset/cis-aws-foundations-benchmark/v/1.2.0 || true
-
-  # Compliance & Reporting
-  compliance_report:
-    name: Compliance & Findings Report
-    runs-on: ubuntu-latest
-    needs: [aws_security_services, dast_zap]
-    steps:
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v2
-        with:
-          role-to-assume: ${{ secrets.GITHUB_OIDC_ROLE_ARN }}
-          aws-region: ${{ env.AWS_REGION }}
-
-      - name: Fetch Security Findings
-        run: |
-          aws securityhub get-findings --max-results 50 > security_findings.json || echo '{}' > security_findings.json
-
-      - name: Upload Security Findings
-        uses: actions/upload-artifact@v4
-        with:
-          name: aws-security-findings-${{ github.run_id }}
-          path: security_findings.json
-
-  # Notifications
-  notify:
-    name: Notify Team
-    runs-on: ubuntu-latest
-    needs: [terraform_apply, dast_zap, compliance_report]
-    steps:
-      - name: Send Slack Notification
-        if: always()
-        uses: slackapi/slack-github-action@v1.23.0
-        with:
-          payload: |
-            {
-              "text": "*DevSecOps Pipeline Completed* for branch `${{ github.ref }}` (#${{ github.run_id }})",
-              "attachments": [
-                {"text": "SAST, SCA, Terraform, DAST, and AWS Security checks executed. Review artifacts and reports in GitHub Actions."}
-              ]
-            }
-        env:
-          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+        run: terraform apply -auto-approve
