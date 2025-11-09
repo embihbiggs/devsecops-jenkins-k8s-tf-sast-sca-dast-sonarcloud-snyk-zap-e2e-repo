@@ -57,23 +57,46 @@ jobs:
         run: npm test
 
   # Static Analysis (SAST) + Software Composition (SCA)
-  sast_sca:
-    name: SAST & SCA Scans
-    runs-on: ubuntu-latest
-    needs: build
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+  # sast_sca:
+  #   name: SAST & SCA Scans
+  #   runs-on: ubuntu-latest
+  #   needs: build
+  #   steps:
+  #     - name: Checkout
+  #       uses: actions/checkout@v4
 
-      # SonarCloud Scan (for SAST)
-      - name: Run SonarCloud Scan
-        uses: sonarsource/sonarcloud-github-action@master
-        with:
-          args: >
-            -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }}
-            -Dsonar.organization=${{ secrets.SONAR_ORGANIZATION }}
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+  #     # SonarCloud Scan (for SAST)
+  #     - name: Run SonarCloud Scan
+  #       uses: sonarsource/sonarcloud-github-action@master
+  #       with:
+  #         args: >
+  #           -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }}
+  #           -Dsonar.organization=${{ secrets.SONAR_ORGANIZATION }}
+  #       env:
+  #         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+  # Static Analysis (SAST) + Software Composition (SCA)
+sast_sca:
+  name: SAST & SCA Scans
+  runs-on: ubuntu-latest
+  needs: build
+
+  steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    # SonarCloud Scan (SAST)
+    - name: Run SonarCloud Scan
+      uses: SonarSource/sonarqube-scan-action@v5.0.0
+      env:
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      with:
+        args: >
+          -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }}
+          -Dsonar.organization=${{ secrets.SONAR_ORGANIZATION }}
+          -Dsonar.host.url=https://sonarcloud.io
+          -Dsonar.sources=.
+
 
       # Snyk SCA Scan
       - name: Snyk Vulnerability Scan
