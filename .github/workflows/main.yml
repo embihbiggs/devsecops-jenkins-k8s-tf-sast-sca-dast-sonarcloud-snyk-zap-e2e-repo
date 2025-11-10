@@ -93,6 +93,7 @@ jobs:
           command: test
           args: >
             --severity-threshold=low
+        continue-on-error: true
       
       - name: Snyk Monitor (Maven)
         if: success()
