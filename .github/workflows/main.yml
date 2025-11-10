@@ -58,26 +58,6 @@ jobs:
         if: hashFiles('**/package.json') != ''
         run: npm test
 
-  # Static Analysis (SAST) + Software Composition (SCA)
-  # sast_sca:
-  #   name: SAST & SCA Scans
-  #   runs-on: ubuntu-latest
-  #   needs: build
-  #   steps:
-  #     - name: Checkout
-  #       uses: actions/checkout@v4
-
-  #     # SonarCloud Scan (for SAST)
-  #     - name: Run SonarCloud Scan
-  #       uses: sonarsource/sonarcloud-github-action@master
-  #       with:
-  #         args: >
-  #           -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }}
-  #           -Dsonar.organization=${{ secrets.SONAR_ORGANIZATION }}
-  #       env:
-  #         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-
-  # Static Analysis (SAST) + Software Composition (SCA)
 sast_sca:
   name: SAST & SCA Scans
   runs-on: ubuntu-latest
@@ -86,34 +66,35 @@ sast_sca:
   steps:
     - name: Checkout
       uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
 
-    # SonarCloud Scan (SAST)
-    - name: Run SonarCloud Scan
+    - name: SonarCloud Scan
       uses: SonarSource/sonarqube-scan-action@v5.0.0
       env:
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
       with:
         args: >
-          -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }}
           -Dsonar.organization=${{ secrets.SONAR_ORGANIZATION }}
+          -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }}
           -Dsonar.host.url=https://sonarcloud.io
           -Dsonar.sources=.
 
-    # Snyk SCA Scan
-    - name: Snyk Vulnerability Scan
+    - name: Snyk SCA Scan
       uses: snyk/actions/node@master
       env:
         SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
       with:
         command: test
 
-    - name: Snyk Monitor (Store Snapshot)
+    - name: Snyk Monitor
       if: success()
       uses: snyk/actions/node@master
       env:
         SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
       with:
         command: monitor
+
 
   # Terraform Plan (IaC Validation)
   terraform_plan:
