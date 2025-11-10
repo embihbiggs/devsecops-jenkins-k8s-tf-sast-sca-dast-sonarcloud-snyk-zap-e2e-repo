@@ -77,9 +77,8 @@ jobs:
           SONAR_ORGANIZATION_KEY: ${{ secret.SONAR_ORGANIZATION_KEY }}
         with:
           args: >
-            -Dsonar.organization=${{ secrets.SONAR_ORGANIZATION }}
-            -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }}
-            -Dsonar.organizationKey=${{ secrets.SONAR_ORGANIZATION_KEY }}
+            -Dsonar.organization=embihbiggs
+            -Dsonar.projectKey=embihbiggs_devsecops-jenkins-k8s-tf-sast-sca-dast-sonarcloud-snyk-zap-e2e-repo
             -Dsonar.host.url=https://sonarcloud.io
             -Dsonar.sources=.
 
