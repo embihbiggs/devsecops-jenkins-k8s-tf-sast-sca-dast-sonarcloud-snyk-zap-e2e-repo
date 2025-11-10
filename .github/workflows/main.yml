@@ -74,10 +74,12 @@ jobs:
           SONAR_ORGANIZATION: ${{ secrets.SONAR_ORGANIZATION }}
           SONAR_PROJECT_KEY: ${{ secrets.SONAR_PROJECT_KEY ]}
           GIT_TOKEN: ${{ secrets.GIT_TOKEN }}
+          SONAR_ORGANIZATION_KEY: ${{ secret.SONAR_ORGANIZATION_KEY }}
         with:
           args: >
             -Dsonar.organization=${{ secrets.SONAR_ORGANIZATION }}
             -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }}
+            -Dsonar.organizationKey=${{ secrets.SONAR_ORGANIZATION_KEY }}
             -Dsonar.host.url=https://sonarcloud.io
             -Dsonar.sources=.
 
