@@ -95,30 +95,29 @@ sast_sca:
       with:
         args: >
           -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }}
-          # -Dsonar.organization=${{ secrets.SONAR_ORGANIZATION }}
+          -Dsonar.organization=${{ secrets.SONAR_ORGANIZATION }}
           -Dsonar.host.url=https://sonarcloud.io
           -Dsonar.sources=.
 
+    # Snyk SCA Scan
+    - name: Snyk Vulnerability Scan
+      uses: snyk/actions/node@master
+      env:
+        SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+      with:
+        command: test
 
-      # Snyk SCA Scan
-      - name: Snyk Vulnerability Scan
-        uses: snyk/actions/node@master
-        env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        with:
-          command: test
-
-      - name: Snyk Monitor (Store Snapshot)
-        if: success()
-        uses: snyk/actions/node@master
-        env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        with:
-          command: monitor
+    - name: Snyk Monitor (Store Snapshot)
+      if: success()
+      uses: snyk/actions/node@master
+      env:
+        SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+      with:
+        command: monitor
 
   # Terraform Plan (IaC Validation)
   terraform_plan:
-    name: Terraform Plan
+  - name: Terraform Plan
     runs-on: ubuntu-latest
     needs: sast_sca
     outputs:
