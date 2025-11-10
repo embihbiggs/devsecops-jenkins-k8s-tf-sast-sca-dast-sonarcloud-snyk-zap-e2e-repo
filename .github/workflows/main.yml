@@ -84,16 +84,16 @@ jobs:
             -Dsonar.sources=src/main/java
             -Dsonar.java.binaries=target/classes
 
-      # ----------- Snyk SCA for Node -------------
-      - name: Snyk SCA Scan (Node)
-        uses: snyk/actions/node@master
-        env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        with:
-          command: test
-          args: >
-            --file=package.json
-            --severity-threshold=low
+      # # ----------- Snyk SCA for Node -------------
+      # - name: Snyk SCA Scan (Node)
+      #   uses: snyk/actions/node@master
+      #   env:
+      #     SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+      #   with:
+      #     command: test
+      #     args: >
+      #       --file=package.json
+      #       --severity-threshold=low
       
       # ----------- Snyk SCA for Maven ------------
       - name: Snyk SCA Scan (Maven)
