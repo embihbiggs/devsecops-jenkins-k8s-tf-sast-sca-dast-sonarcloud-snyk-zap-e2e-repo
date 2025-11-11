@@ -1,0 +1,11 @@
+aws_region = "us-east-1"
+project_prefix = "Capstone"
+vpc_name = "capstone_vps"
+vpc_cidr = "10.0.0.0/16"
+public_subnets = ["10.0.0.0/24","10.0.1.0/24"]
+private_subnets = ["10.0.100.0/24","10.0.101.0/24"]
+eks_node_instance_type = "t3.micro"
+eks_node_desired_capacity = 2
+s3_bucket_name = "capstone_bucket"
+dast_target_url = ""
+enable_pci = false
