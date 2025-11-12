@@ -62,3 +62,15 @@ scan-results/
 *.zip
 *.tar.gz
 *.tgz
+
+# === Terraform ===
+.terraform/
+*.tfstate
+*.tfstate.backup
+crash.log
+override.tf
+override.tf.json
+terraform.tfvars
+*.zip
+*.exe
+
