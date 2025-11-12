@@ -1,0 +1,76 @@
+# === General ===
+.DS_Store
+Thumbs.db
+*.log
+*.tmp
+*.bak
+*.swp
+
+# === IDEs / Editors ===
+.vscode/
+.idea/
+*.iml
+
+# === Node / NPM ===
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# === Java / Maven ===
+target/
+*.class
+*.jar
+*.war
+*.ear
+*.iml
+
+# === Python (if used for scripts) ===
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.egg-info/
+
+# === Docker ===
+*.pid
+.env
+.docker/
+docker-compose.override.yml
+
+# === Jenkins ===
+workspace/
+*.jenkinsfile.backup
+*.hpi
+*.jpi
+
+# === Terraform ===
+*.tfstate
+*.tfstate.*
+*.backup
+.terraform/
+.terraform.lock.hcl
+*.tfvars
+crash.log
+
+# === SonarQube / Snyk / Scans ===
+.sonar/
+.snyk
+reports/
+scan-results/
+
+# === Misc ===
+*.zip
+*.tar.gz
+*.tgz
+
+# === Terraform ===
+.terraform/
+*.tfstate
+*.tfstate.backup
+crash.log
+override.tf
+override.tf.json
+terraform.tfvars
+*.zip
+*.exe
+

@@ -1,0 +1,44 @@
+# ===== Terraform =====
+*.tfstate
+*.tfstate.*
+*.tfvars
+crash.log
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+.terraform/
+.terraform.lock.hcl
+terraform.tfvars.json
+
+# ===== Python =====
+__pycache__/
+*.pyc
+
+# ===== Node/npm =====
+node_modules/
+npm-debug.log
+
+# ===== Maven/Gradle =====
+target/
+*.log
+
+# ===== Docker =====
+*.env
+.dockerignore
+
+# ===== Sonar =====
+.scannerwork/
+
+# ===== Snyk =====
+.snyk
+
+# ===== Jenkins =====
+*.jenkinsfile.backup
+
+# ===== Misc =====
+*.bak
+*.swp
+.DS_Store
+.idea/
+.vscode/
