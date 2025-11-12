@@ -40,6 +40,7 @@
             <artifactId>jstl</artifactId>
             <version>1.2</version>
         </dependency>
+
         <dependency>
             <groupId>org.apache.derby</groupId>
             <artifactId>derby</artifactId>
@@ -55,11 +56,13 @@
             <artifactId>jol-core</artifactId>
             <version>0.6</version>
         </dependency>
+
         <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
             <version>5.1.25</version>
         </dependency>
+
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
@@ -70,6 +73,7 @@
             <artifactId>slf4j-log4j12</artifactId>
             <version>1.5.0</version>
         </dependency>
+
         <dependency>
             <groupId>org.apache.directory.server</groupId>
             <artifactId>apacheds-all</artifactId>
@@ -81,16 +85,19 @@
                 </exclusion>
             </exclusions>
         </dependency>
+
         <dependency>
             <groupId>org.owasp.esapi</groupId>
             <artifactId>esapi</artifactId>
             <version>2.7.0.0</version>
         </dependency>
+
         <dependency>
             <groupId>ognl</groupId>
             <artifactId>ognl</artifactId>
             <version>3.0.17</version>
         </dependency>
+
         <dependency>
             <groupId>com.sun.mail</groupId>
             <artifactId>javax.mail</artifactId>
@@ -103,6 +110,8 @@
     ==================================== -->
     <build>
         <plugins>
+
+            <!-- Updated compiler plugin -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -113,6 +122,7 @@
                 </configuration>
             </plugin>
 
+            <!-- Fixed antrun plugin (no <tasks> used) -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-antrun-plugin</artifactId>
@@ -134,6 +144,7 @@
                 </executions>
             </plugin>
 
+            <!-- OWASP Dependency-Check -->
             <plugin>
                 <groupId>org.owasp</groupId>
                 <artifactId>dependency-check-maven</artifactId>
@@ -143,6 +154,7 @@
                 </configuration>
             </plugin>
 
+            <!-- Snyk SCA scan plugin -->
             <plugin>
                 <groupId>io.snyk</groupId>
                 <artifactId>snyk-maven-plugin</artifactId>
@@ -152,6 +164,7 @@
                 </configuration>
             </plugin>
 
+            <!-- WAR plugin -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-war-plugin</artifactId>
@@ -162,13 +175,16 @@
                 </configuration>
             </plugin>
 
+            <!-- Tomcat plugin (left as-is for legacy behavior) -->
             <plugin>
                 <groupId>org.apache.tomcat.maven</groupId>
                 <artifactId>tomcat7-maven-plugin</artifactId>
                 <version>2.1</version>
             </plugin>
+
         </plugins>
 
+        <!-- Fixed pluginManagement range so m2e does NOT load broken antrun 3.x -->
         <pluginManagement>
             <plugins>
                 <plugin>
@@ -194,5 +210,7 @@
                 </plugin>
             </plugins>
         </pluginManagement>
+
     </build>
+
 </project>
