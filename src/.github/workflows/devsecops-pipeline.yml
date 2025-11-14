@@ -2,17 +2,12 @@ name: DevSecOps AWS Pipeline
 
 on:
   push:
-<<<<<<< HEAD
     branches: [main]
   pull_request:
     branches: [main]
-=======
-    branches:
-      - '**'
->>>>>>> 49fb91462cd350ffcc5ea4cf1a4415f8980e2b57
 
 env:
-  TF_WORKING_DIR: src
+  TF_WORKING_DIR: src/terraform
   TERRAFORM_VERSION: 1.5.6
   AWS_REGION: us-east-1
 
