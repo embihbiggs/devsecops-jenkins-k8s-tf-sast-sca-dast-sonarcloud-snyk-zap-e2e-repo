@@ -1,5 +1,4 @@
 name: DevSecOps AWS Pipeline
-
 on:
   push:
     branches: [main]
@@ -275,7 +274,6 @@ jobs:
         with:
           name: aws-security-findings-${{ github.run_id }}
           path: security_findings.json
-
 
   # -----------------------------------------------------------
   # 9. Notifications
