@@ -1,5 +1,4 @@
 name: DevSecOps AWS Pipeline
-
 on:
   push:
     branches: [main]
