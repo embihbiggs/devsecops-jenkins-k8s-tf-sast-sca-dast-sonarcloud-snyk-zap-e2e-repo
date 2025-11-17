@@ -41,9 +41,9 @@ resource "aws_s3_bucket_policy" "tfstate_policy" {
     Version = "2012-10-17"
     Statement = [
       {
-        Effect = "Deny"
+        Effect    = "Deny"
         Principal = "*"
-        Action = "s3:*"
+        Action    = "s3:*"
         Resource = [
           "arn:aws:s3:::${module.s3_kms.tfstate_bucket_name}",
           "arn:aws:s3:::${module.s3_kms.tfstate_bucket_name}/*"
