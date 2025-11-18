@@ -31,7 +31,6 @@ resource "aws_s3_bucket_versioning" "tfstate_versioning" {
   }
 }
 
-
 resource "aws_s3_bucket_server_side_encryption_configuration" "tfstate_encryption" {
   bucket = aws_s3_bucket.tfstate.id
 

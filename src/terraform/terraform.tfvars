@@ -1,6 +1,6 @@
 region          = "us-east-1"
 vpc_cidr        = "10.0.0.0/16"
-s3_bucket_name  = "devsecops-artifact-bucket"
+s3_bucket_name  = "capstone-tfstate-237"
 cluster_name    = "devsecops-eks-cluster"
 cluster_version = "1.27"
 project_prefix  = "capstone"
