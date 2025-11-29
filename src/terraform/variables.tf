@@ -29,7 +29,7 @@ variable "node_groups" {
 }
 
 variable "region" {
-  type = string
+  type        = string
   description = "AWS region to deploy resources in"
 }
 

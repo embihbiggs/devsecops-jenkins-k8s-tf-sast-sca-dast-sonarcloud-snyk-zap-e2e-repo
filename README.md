@@ -137,4 +137,4 @@ This demo shows: Start up -> Infinite Loop -> LDAP Injection -> UnsatisfiedLinkE
 
   　![logo](https://github.com/k-tamura/easybuggy4django/blob/master/static/easybuggy.png)
 
-  final version 1.3.0
+  final version 1.4.0
